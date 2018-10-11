@@ -46,6 +46,11 @@ class SillonPeluquero {
     Boolean ocupado;
     int id_cliente = 0;
 
+    /**
+     * Constructor de la clase SillonPeluquero
+     *
+     * @param ocupado estado del sillon del peluquero
+     */
     public SillonPeluquero(Boolean ocupado) {
         this.ocupado = ocupado;
     }
@@ -61,9 +66,11 @@ class SillonPeluquero {
         }
     }
 
+    /**
+     * Bloquear hilo si no hay alguien sentado para oortarse el pelo
+     */
     public synchronized void peluqueroEsperaCliente() {
         while (!ocupado) {
-            // Bloquear hilo si no hay alguien sentado para oortarse el pelo
             try {
                 wait();
             } catch (InterruptedException e) {
@@ -72,6 +79,9 @@ class SillonPeluquero {
         }
     }
 
+    /**
+     * Metodo que coloca un mensaje de que se esta cortando el pelo a un cliente
+     */
     public synchronized void cortandoPelo() {
         System.out.println("CORTANDO el cabello a cliente: " + id_cliente);
         try {
@@ -82,16 +92,27 @@ class SillonPeluquero {
         }
     }
 
+    /**
+     * Metodo que almacena que el cliente de determinado numero se sento
+     *
+     * @param numero
+     */
     public synchronized void clienteSentarse(int numero) {
         ocupado = true;
         id_cliente = numero;
         System.out.println("Cliente " + id_cliente + " PASA con el peluquero");
     }
 
+    /**
+     * Metodo que almacena que el cliente termino de cortarse el pelo al desocupar el lugar
+     */
     public synchronized void clienteLevantarse() {
         ocupado = false;
     }
 
+    /**
+     * Metodo para enviar notificación a todos los hilos para despertarlos
+     */
     public synchronized void notificar() {
         notifyAll();
     }
@@ -103,10 +124,18 @@ class Peluquero extends Thread {
     // Hilo peluquero
     SillonPeluquero sillonPeluquero;
 
+    /**
+     * Constructor de clase Peluquero
+     *
+     * @param sillonPeluquero objeto de tipo SillonPeluquero
+     */
     public Peluquero(SillonPeluquero sillonPeluquero) {
         this.sillonPeluquero = sillonPeluquero;
     }
 
+    /**
+     * Metodo con codigo a ejecutar por hilo Peluquero
+     */
     public void run() {
         while (true) {
             sillonPeluquero.peluqueroEsperaCliente();
@@ -126,12 +155,22 @@ class Cliente extends Thread {
     SillonPeluquero sillonPeluquero;
     int veces = 0;
 
+    /**
+     * Constructor de clase Cliente
+     *
+     * @param numero          numero entero indentificador del cliente
+     * @param salaEspera      objeto SalaEspera
+     * @param sillonPeluquero objeto sillonPeluquero
+     */
     public Cliente(int numero, SalaEspera salaEspera, SillonPeluquero sillonPeluquero) {
         this.numero = numero;
         this.salaEspera = salaEspera;
         this.sillonPeluquero = sillonPeluquero;
     }
 
+    /**
+     * Metodo que ejecuta el codigo del hilo Cliente
+     */
     public void run() {
         for (; ; ) {
 
@@ -152,16 +191,6 @@ class Cliente extends Thread {
             veces = veces + 1;
             System.out.println("Cliente " + numero + " se ha CORTADO " + veces + " veces");
 
-            synchronized (salaEspera) {
-                // sentado = false;
-                // salaEspera.contador = salaEspera.contador - 1;
-//                salaEspera.decrementarContador();
-//                //System.out.println("salaespera contador = " + salaEspera.contador);
-//                salaEspera.notifyAll();
-//                veces = veces + 1;
-//                System.out.println("Cliente " + numero + " se ha CORTADO " + veces + " veces");
-            }
-
             yield();
 
 //            try {
@@ -179,7 +208,15 @@ class Cliente extends Thread {
 }
 
 
+/**
+ * Clase del programa principal
+ */
 public class PeluqueroDormilon {
+    /**
+     * Metodo main de ejecucion del programa
+     *
+     * @param arg
+     */
     public static void main(String arg[]) {
         int cantidad_clientes = 6;
         ArrayList<Cliente> clientes = new ArrayList<>();
