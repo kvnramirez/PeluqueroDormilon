@@ -1,25 +1,42 @@
 import java.util.ArrayList;
 
-
+/**
+ * Recurso compartido, SalaEspera
+ */
 class SalaEspera {
-    // Recurso compartido
     int max_lugares = 4; // Cantidad maxima de lugares en la sala
     int contador; // Contador de lugares
-    Boolean lugares[] = new Boolean[4];
 
+    /**
+     * Constructor clase SalaEspera
+     *
+     * @param contador numero entero paa iniciar el contador
+     */
     public SalaEspera(int contador) {
         this.contador = contador;
     }
 
+    /**
+     * Metodo de clase para incrementar contador
+     */
     public synchronized void incrementarContador() {
         contador = contador + 1;
     }
 
+    /**
+     * Metodo de clase para decrementar contador
+     */
     public synchronized void decrementarContador() {
         contador = contador - 1;
-        System.out.println("Contador decrementado = " + contador);
+        //System.out.println("Contador decrementado = " + contador);
     }
 
+    /**
+     * Metodo de clase para bloquear hilo de cliente en lo que se desocupa un lugar
+     *
+     * @param numero  numero de cliente
+     * @param sentado booleano que indica si el cliente esta sentado
+     */
     public synchronized void esperarLugar(int numero, Boolean sentado) {
         while (contador >= max_lugares && !sentado) {
             System.out.println("Cliente " + numero + " ESPERANDO lugar para sentarse, contador= " + contador);
@@ -31,10 +48,9 @@ class SalaEspera {
         }
     }
 
-    public synchronized int getContador() {
-        return contador;
-    }
-
+    /**
+     * Metodo para despertar a los otros hilos
+     */
     public synchronized void notificar() {
         notifyAll();
     }
@@ -47,7 +63,7 @@ class SillonPeluquero {
     int id_cliente = 0;
 
     /**
-     * Constructor de la clase SillonPeluquero
+     * Constructor de clase SillonPeluquero
      *
      * @param ocupado estado del sillon del peluquero
      */
@@ -55,6 +71,11 @@ class SillonPeluquero {
         this.ocupado = ocupado;
     }
 
+    /**
+     * Metodo de clase para bloquear hilo peluquero en lo que llega un cliente
+     *
+     * @param numero numero de cliente
+     */
     public synchronized void clienteEsperaDisponibilidad(int numero) {
         while (ocupado) {
             try {
@@ -120,8 +141,10 @@ class SillonPeluquero {
 }
 
 
+/**
+ * Clase para crear hilo Peluquero
+ */
 class Peluquero extends Thread {
-    // Hilo peluquero
     SillonPeluquero sillonPeluquero;
 
     /**
@@ -147,8 +170,10 @@ class Peluquero extends Thread {
 }
 
 
+/**
+ * Clase para crear hilo cliente
+ */
 class Cliente extends Thread {
-    // Hilo cliente
     int numero;
     Boolean sentado = false;
     SalaEspera salaEspera;
@@ -180,13 +205,12 @@ class Cliente extends Thread {
             System.out.println("Cliente " + numero + " se SENTO");
             salaEspera.notificar();
 
-            sillonPeluquero.clienteEsperaDisponibilidad(numero); // esperar a que sillon este desocupado
-            sillonPeluquero.clienteSentarse(numero); // marcar sillon como ocupado
+            sillonPeluquero.clienteEsperaDisponibilidad(numero);
+            sillonPeluquero.clienteSentarse(numero);
             sentado = false;
             sillonPeluquero.notificar();
 
             salaEspera.decrementarContador();
-            //System.out.println("salaespera contador = " + salaEspera.contador);
             salaEspera.notificar();
             veces = veces + 1;
             System.out.println("Cliente " + numero + " se ha CORTADO " + veces + " veces");
