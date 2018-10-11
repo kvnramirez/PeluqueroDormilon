@@ -17,11 +17,12 @@ class SalaEspera {
 
     public synchronized void decrementarContador() {
         contador = contador - 1;
+        System.out.println("Contador decrementado = " + contador);
     }
 
     public synchronized void esperarLugar(int numero, Boolean sentado) {
         while (contador >= max_lugares && !sentado) {
-            System.out.println("Cliente " + numero + " ESPERANDO lugar para sentarse");
+            System.out.println("Cliente " + numero + " ESPERANDO lugar para sentarse, contador= " + contador);
             try {
                 wait();
             } catch (InterruptedException e) {
@@ -84,6 +85,7 @@ class SillonPeluquero {
     public synchronized void clienteSentarse(int numero) {
         ocupado = true;
         id_cliente = numero;
+        System.out.println("Cliente " + id_cliente + " PASA con el peluquero");
     }
 
     public synchronized void clienteLevantarse() {
